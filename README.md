@@ -75,10 +75,7 @@ meu_projeto/
 ├── terraform/                  # Código Terraform para infraestrutura na AWS
 │   ├── dynamodb.tf
 │   ├── iam.tf
-│   ├── lambda_add_item.tf
-│   ├── lambda_delete_item.tf
-│   ├── lambda_hello_terraform.tf
-│   ├── lambda_update_item.tf
+│   ├── main.tf
 │   ├── outputs.tf
 │   ├── providers.tf
 │   ├── variables.tf
@@ -167,10 +164,6 @@ terraform plan
 # Aplicar alterações
 terraform apply
 ```
-
-# ☁️ Estrutura terraform
-
-![ estrutura terraform](docs/images/image-1.png)
 
 ## 🔄 Fluxo de Trabalho Git
 
