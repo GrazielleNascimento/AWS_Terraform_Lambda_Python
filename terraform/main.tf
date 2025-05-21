@@ -95,3 +95,10 @@ module "delete_item" {
     Function    = "delete-item"
   }
 }
+
+module "cognito" {
+  source         = "./modules/cognito"
+  user_pool_name = "user-pool-hello-api-prod"
+  client_name    = "hello-api-client"
+  domain_prefix  = "hello-terraform-api-auth-v2"
+}
