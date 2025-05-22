@@ -22,3 +22,8 @@ output "delete_item_lambda_arn" {
   description = "ARN da função Lambda Delete Item"
   value       = module.delete_item.function_arn
 }
+
+output "api_gateway_endpoint" {
+  description = "Endpoint do API Gateway para /hello"
+  value       = module.api_gateway.api_endpoint
+}
