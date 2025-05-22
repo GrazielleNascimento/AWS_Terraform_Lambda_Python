@@ -100,7 +100,7 @@ module "cognito" {
   source         = "./modules/cognito"
   user_pool_name = "user-pool-hello-api-prod"
   client_name    = "hello-api-client"
-  domain_prefix  = "hello-terraform-api-auth-v2-unique123"
+  domain_prefix  = "hello-terraform-api-auth-v2"
 }
 
 module "api_gateway" {
