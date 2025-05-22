@@ -10,4 +10,9 @@ output "cognito_domain" {
   value = "https://${aws_cognito_user_pool_domain.this.domain}.auth.${data.aws_region.current.name}.amazoncognito.com"
 }
 
+output "user_pool_arn" {
+  description = "ARN do Cognito User Pool"
+  value       = aws_cognito_user_pool.this.arn
+}
+
 data "aws_region" "current" {}

@@ -100,5 +100,16 @@ module "cognito" {
   source         = "./modules/cognito"
   user_pool_name = "user-pool-hello-api-prod"
   client_name    = "hello-api-client"
-  domain_prefix  = "hello-terraform-api-auth-v2"
+  domain_prefix  = "hello-terraform-api-auth-v2-unique123"
+}
+
+module "api_gateway" {
+  source = "./modules/api_gateway"
+
+  api_name                        = "hello-terraform-api"
+  environment                     = var.environment
+  cognito_user_pool_arn          = module.cognito.user_pool_arn
+  lambda_invoke_arn              = module.hello_terraform.invoke_arn
+  lambda_function_name           = module.hello_terraform.function_name
+  api_gateway_cloudwatch_role_arn = aws_iam_role.api_gateway_role.arn  
 }
