@@ -4,14 +4,6 @@ variable "region" {
   default     = "sa-east-1"
 }
 
-variable "AWS_ACCESS_KEY_ID_DEV" {
-  type = string
-}
-
-variable "AWS_SECRET_ACCESS_KEY_DEV" {
-  type = string
-}
-
 variable "lambda_runtime" {
   description = "Runtime para funções Lambda"
   type        = string
