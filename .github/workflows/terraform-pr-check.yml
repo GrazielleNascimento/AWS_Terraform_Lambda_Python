@@ -34,7 +34,7 @@ jobs:
         run: |
           pip install -r requirements.txt
           pip install -r requirements-dev.txt  # Instalando dependências de desenvolvimento
-          pip install black  # Instala o black explicitamente
+         
         working-directory: ${{ github.workspace }}
 
       - name: List files in src directory
