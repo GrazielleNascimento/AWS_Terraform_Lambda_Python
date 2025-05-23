@@ -2,7 +2,7 @@ name: Deploy AWS with Terraform after PR
 
 on:
   pull_request:
-    types: [closed]
+    types: [opened, synchronize, reopened]
     branches: [develop]
 
 jobs:
