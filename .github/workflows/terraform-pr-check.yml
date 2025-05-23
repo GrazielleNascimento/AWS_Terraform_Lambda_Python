@@ -1,4 +1,4 @@
-name: Deploy AWS with Terraform after PR
+name: Deploy AWS with Terraform after PR 
 
 on:
   pull_request:
@@ -33,23 +33,12 @@ jobs:
         with:
           python-version: '3.9'
 
-      # 4. Instalar dependências Python
-      - name: Install Python dependencies
-        run: |
-          pip install black isort
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
-
-      # 5. Criar diretórios para funções Lambda, se necessário
+      # 4. Build Lambda ZIPs (Este passo já lida com as dependências)
       - name: Build Lambda ZIPs
         run: python scripts/build.py
         working-directory: ${{ github.workspace }}
 
-      # 6. Verificar arquivos e diretórios
-      - name: List files in src/lambdas
-        run: ls -R src/lambdas/
-
-      # 7. Verificar formatação Python com Black
+      # 5. Verificar formatação Python com Black
       - name: Check Python formatting with Black
         run: |
           if [ -d "src/lambdas" ]; then
@@ -59,7 +48,7 @@ jobs:
           fi
         continue-on-error: true
 
-      # 8. Verificar ordem de importação com isort
+      # 6. Verificar ordem de importação com isort
       - name: Check import order with isort
         run: |
           if [ -d "src/lambdas" ]; then
@@ -69,34 +58,28 @@ jobs:
           fi
         continue-on-error: true
 
-      # 9. Empacotar funções Lambda
-      - name: Build Lambda Packages
-        run: |
-          cd scripts
-          python build.py
-
-      # 10. Configurar Terraform
+      # 7. Configurar Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.5.7
 
-      # 11. Inicializar Terraform
+      # 8. Inicializar Terraform
       - name: Terraform Init
         run: terraform init
         working-directory: ./terraform
 
-      # 12. Validar Terraform
+      # 9. Validar Terraform
       - name: Terraform Validate
         run: terraform validate
         working-directory: ./terraform
 
-      # 13. Planejar Terraform
+      # 10. Planejar Terraform
       - name: Terraform Plan
         run: terraform plan -no-color -input=false
         working-directory: ./terraform
 
-      # 14. Aplicar Terraform
+      # 11. Aplicar Terraform
       - name: Terraform Apply
         run: terraform apply -auto-approve -input=false
         working-directory: ./terraform
