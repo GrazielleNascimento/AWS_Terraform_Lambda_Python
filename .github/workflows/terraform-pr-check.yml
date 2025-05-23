@@ -30,11 +30,19 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: Install Python dependencies
-        run: |
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt  # Instalando dependências de desenvolvimento
-         
+      - name: List files in src directory
+        run: ls -R src/ 
+
+      - name: Install Python dependencies from requirements.txt
+        run: pip install -r requirements.txt
+        working-directory: ${{ github.workspace }}
+
+      - name: Install development dependencies from requirements-dev.txt
+        run: pip install -r requirements-dev.txt
+        working-directory: ${{ github.workspace }}
+
+      - name: Install black
+        run: pip install black
         working-directory: ${{ github.workspace }}
 
       - name: List files in src directory
