@@ -4,6 +4,7 @@ Função Lambda para adicionar um item à lista de mercado.
 Esta função recebe um nome e uma data, cria um novo item
 e o salva no DynamoDB usando o padrão Single Table Design.
 """
+
 import json
 import os
 import uuid

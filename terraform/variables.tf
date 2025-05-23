@@ -1,13 +1,7 @@
 variable "region" {
   description = "Região AWS"
   type        = string
-  default     = "us-east-1"
-}
-
-variable "profile" {
-  description = "Perfil AWS CLI"
-  type        = string
-  default     = "default"
+  default     = "sa-east-1"
 }
 
 variable "lambda_runtime" {

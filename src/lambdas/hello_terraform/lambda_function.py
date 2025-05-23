@@ -4,7 +4,9 @@ Função Lambda que retorna uma mensagem 'Hello Terraform'.
 Esta função é um exemplo simples que retorna um objeto JSON
 com status code 200 e a mensagem "Hello Terraform".
 """
+
 import json
+
 
 def lambda_handler(event, context):
     """

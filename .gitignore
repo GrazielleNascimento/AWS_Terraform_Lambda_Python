@@ -35,4 +35,7 @@ var/
 *.swo
 
 # Pacotes
-*.zip" > .gitignore
+dist/
+temp/
+.black
+*.zip

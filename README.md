@@ -206,3 +206,107 @@ Este projeto segue a convenção [Conventional Commits](https://www.conventional
 - `chore` 🔧: Alterações em scripts de build, configurações, etc.
 - `test` ✅: Adição ou modificação de testes
 - `refactor` 🔨: Refatoração de código sem alteração de funcionalidade
+
+
+# ✅ Configuração de CD com GitHub Actions
+
+## 🎯 Contexto
+
+- Configurar **CD (Continuous Deployment)** via **GitHub Actions**.
+- Aplicar **Deploy** automaticamente a cada **PR (Pull Request)** aplicado na branch `developer`.
+- **Destruir toda infraestrutura local** via **Terraform**.
+- Configurar o **GitHub** para fazer o deploy automaticamente.
+
+---
+
+## ✅ Pontos de Ação (Checklist)
+
+- [x] Destruir a infraestrutura local criada pelo Terraform.
+- [x] Configurar um **GitHub Action** para aplicar o código no **Merge** de um **Pull Request**.
+- [x] Evitar conflito entre **deploy local** e o **GitHub Action**.
+- [x] Não criar variáveis genéricas como `AWS_ACCOUNT` ou `AWS_SECRET`.  
+Usar Secrets específicos por ambiente:  
+→ `AWS_ACCOUNT_DEV`  
+→ `AWS_ACCOUNT_HOMOL`
+
+- [x] Planejar múltiplos ambientes (**produção**, **homologação**, etc.) com variáveis separadas.
+- [x] Realizar o **destroy** de toda infraestrutura local com Terraform.
+- [x] Configurar o **GitHub Action** para aplicar o código automaticamente no Merge.
+
+---
+
+## 💥 Destruindo a infraestrutura local com Terraform
+
+```bash
+# 1. Ir para pasta terraform
+cd terraform
+
+# 2. Inicializar terraform (para poder destruir)
+terraform init
+
+# 3. Destruir toda infraestrutura
+terraform destroy -auto-approve
+
+# 4. Limpar arquivos locais
+rm terraform.tfstate*
+rm -rf .terraform
+rm .terraform.lock.hcl
+
+# 5. Voltar para raiz do projeto
+cd ..
+
+# 🔐 Passo a Passo - Adicionar Secrets no GitHub
+
+## ✅ PASSO 1: Ir para Settings do Repositório
+- Abra seu repositório no GitHub.
+- Clique na aba **Settings** (no topo, ao lado de **Actions**).
+
+## ✅ PASSO 2: Navegar para Secrets
+- No menu lateral esquerdo, role para baixo.
+- Clique em **Secrets and variables**.
+- Clique em **Actions**.
+
+## ✅ PASSO 3: Adicionar o Primeiro Secret
+- Clique em **New repository secret**.
+- **Name:** `AWS_ACCESS_KEY_ID_DEV`
+- **Secret:** Cole sua AWS Access Key (exemplo: `AKIA1234567890ABCDEF`).
+- Clique em **Add secret**.
+
+## ✅ PASSO 4: Adicionar o Segundo Secret
+- Clique em **New repository secret** novamente.
+- **Name:** `AWS_SECRET_ACCESS_KEY_DEV`
+- **Secret:** Cole sua AWS Secret Key (exemplo: `abc123xyz789...`).
+- Clique em **Add secret**.
+
+---
+
+# 🔑 Como pegar suas credenciais AWS
+
+## ✅ Opção 1: AWS Console (Interface Web)
+1. Login na **AWS Console**.
+2. Vá em **IAM → Users**.
+3. Clique no seu usuário.
+4. Aba **Security credentials**.
+5. Clique em **Create access key**.
+6. **Use case:** escolha **Command Line Interface (CLI)**.
+7. Copie os valores:
+
+```text
+Access key ID → Para AWS_ACCESS_KEY_ID_DEV
+Secret access key → Para AWS_SECRET_ACCESS_KEY_DEV
+```
+
+## ✅ Opção 2: AWS CLI (se já configurado)
+
+```bash
+# Mostrar suas credenciais atuais
+cat ~/.aws/credentials
+```
+
+**Exemplo de resultado:**
+
+```ini
+[default]
+aws_access_key_id = AKIA1234567890ABCDEF     ← Copie este
+aws_secret_access_key = abc123xyz789...      ← Copie este
+```
