@@ -15,9 +15,11 @@ jobs:
       contents: read
 
     steps:
+      # 1. Checkout do código
       - name: Checkout repository code
         uses: actions/checkout@v4
 
+      # 2. Configurar credenciais AWS
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -25,18 +27,20 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
           aws-region: us-east-1
 
+      # 3. Configurar Python
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.9'
 
+      # 4. Instalar dependências Python
       - name: Install Python dependencies
         run: |
           pip install black isort
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
-      # Criação de diretórios, incluindo hello_terraform, caso não existam
+      # 5. Criar diretórios para funções Lambda, se necessário
       - name: Create directories for Lambda functions
         run: |
           mkdir -p src/lambdas/hello_terraform
@@ -44,11 +48,11 @@ jobs:
           mkdir -p src/lambdas/delete_item
           mkdir -p src/lambdas/update_item
 
-      # Depuração: Listar arquivos em src/lambdas
+      # 6. Verificar arquivos e diretórios
       - name: List files in src/lambdas
         run: ls -R src/lambdas/
 
-      # Check Python formatting with Black
+      # 7. Verificar formatação Python com Black
       - name: Check Python formatting with Black
         run: |
           if [ -d "src/lambdas" ]; then
@@ -58,7 +62,7 @@ jobs:
           fi
         continue-on-error: true
 
-      # Check import order with isort
+      # 8. Verificar ordem de importação com isort
       - name: Check import order with isort
         run: |
           if [ -d "src/lambdas" ]; then
@@ -68,29 +72,34 @@ jobs:
           fi
         continue-on-error: true
 
-      # Build Lambda Packages
+      # 9. Empacotar funções Lambda
       - name: Build Lambda Packages
         run: |
           cd scripts
           python build.py
 
+      # 10. Configurar Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.5.7
 
+      # 11. Inicializar Terraform
       - name: Terraform Init
         run: terraform init
         working-directory: ./terraform
 
+      # 12. Validar Terraform
       - name: Terraform Validate
         run: terraform validate
         working-directory: ./terraform
 
+      # 13. Planejar Terraform
       - name: Terraform Plan
         run: terraform plan -no-color -input=false
         working-directory: ./terraform
 
+      # 14. Aplicar Terraform
       - name: Terraform Apply
         run: terraform apply -auto-approve -input=false
         working-directory: ./terraform
