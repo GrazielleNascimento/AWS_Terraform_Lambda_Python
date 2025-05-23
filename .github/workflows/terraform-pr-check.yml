@@ -41,13 +41,9 @@ jobs:
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
       # 5. Criar diretórios para funções Lambda, se necessário
-      - name: Create directories for Lambda functions
-        run: |
-          mkdir -p src/lambdas/hello_terraform
-          mkdir -p src/lambdas/add_item
-          mkdir -p src/lambdas/delete_item
-          mkdir -p src/lambdas/update_item
-          
+      - name: Build Lambda ZIPs
+        run: python scripts/build.py
+        working-directory: ${{ github.workspace }}
 
       # 6. Verificar arquivos e diretórios
       - name: List files in src/lambdas
