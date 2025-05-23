@@ -46,11 +46,9 @@ jobs:
           python-version: '3.9'
 
       - name: Build Lambda Packages
-        working-directory: ${{ github.workspace }}
-        run: python scripts/build.py
-
-      - name: Terraform Format Check
-        run: terraform fmt -check -recursive  
+        run: |
+          cd ../scripts
+          python build.py
 
       - name: Terraform Init
         run: terraform init

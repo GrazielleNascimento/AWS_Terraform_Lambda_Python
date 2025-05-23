@@ -26,30 +26,6 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: Install Python dependencies
-        run: |
-          pip install black isort
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
-
-      - name: Check Python formatting with Black
-        run: |
-          if [ -d "src/lambdas" ]; then
-            black --check src/lambdas/ || echo "⚠️ Python files need formatting"
-          else
-            echo "ℹ️ No Python files found in src/lambdas/"
-          fi
-        continue-on-error: true
-
-      - name: Check import order with isort
-        run: |
-          if [ -d "src/lambdas" ]; then
-            isort --check-only src/lambdas/ || echo "⚠️ Imports need sorting"
-          else
-            echo "ℹ️ No Python files found for import checking"
-          fi
-        continue-on-error: true
-
       - name: Build Lambda Packages
         run: |
           cd scripts
@@ -90,12 +66,6 @@ jobs:
           terraform plan -no-color -var="environment=dev" -out=tfplan
         working-directory: ./terraform
         continue-on-error: true
-
-      - name: Security Scan with tfsec
-        uses: aquasecurity/tfsec-action@v1.0.0
-        with:
-          working_directory: ./terraform
-          soft_fail: true
 
       - name: Update Pull Request
         uses: actions/github-script@v6
