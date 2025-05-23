@@ -1,72 +1,57 @@
-name: "Deploy to Development"
+name: Deploy AWS with Terraform after PR
 
 on:
   pull_request:
     types: [closed]
-    branches: [ develop ]
-    paths:
-      - 'terraform/**'
-      - 'src/**'
-
-concurrency:
-  group: deploy-dev
-  cancel-in-progress: false
+    branches: [develop]
 
 jobs:
-  deploy-dev:
+  deploy_terraform:
+    name: Deploy Terraform to AWS
     if: github.event.pull_request.merged == true
-    name: "Deploy to Dev Environment"
     runs-on: ubuntu-latest
-    environment: development
-    
-    defaults:
-      run:
-        working-directory: ./terraform
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+      - name: Checkout repository code
+        uses: actions/checkout@v4
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.5.7
-          terraform_wrapper: false
-
-      - name: Configure AWS Credentials for Dev
-        uses: aws-actions/configure-aws-credentials@v2
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
           aws-region: us-east-1
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.9'
 
       - name: Build Lambda Packages
         run: |
-          cd ../scripts
+          cd scripts
           python build.py
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.7
 
       - name: Terraform Init
         run: terraform init
+        working-directory: ./terraform
+
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: ./terraform
+
+      - name: Terraform Plan
+        run: terraform plan -no-color -input=false
+        working-directory: ./terraform
 
       - name: Terraform Apply
-        run: |
-          terraform apply -auto-approve \
-            -var="environment=dev" \
-            -var="region=us-east-1" \
-            -var="dynamodb_table_name=MarketList-dev"
-
-      - name: Store Outputs
-        id: tf-outputs
-        run: |
-          echo "api_endpoint=$(terraform output -raw api_gateway_endpoint)" >> $GITHUB_OUTPUT
-
-      - name: Notify Deployment Success
-        if: success()
-        run: |
-          echo "🚀 Deployment to Dev Environment Successful!"
-          echo "API Endpoint: ${{ steps.tf-outputs.outputs.api_endpoint }}"
+        run: terraform apply -auto-approve -input=false
+        working-directory: ./terraform
