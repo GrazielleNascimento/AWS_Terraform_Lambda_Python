@@ -36,12 +36,15 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
-      # Create missing directories if necessary
+      # Criação de diretórios, incluindo hello_terraform, caso não existam
       - name: Create directories for Lambda functions
         run: |
           mkdir -p src/lambdas/hello_terraform
+          mkdir -p src/lambdas/add_item
+          mkdir -p src/lambdas/delete_item
+          mkdir -p src/lambdas/update_item
 
-      # Debug: List files in src/lambdas to ensure directories and files are present
+      # Depuração: Listar arquivos em src/lambdas
       - name: List files in src/lambdas
         run: ls -R src/lambdas/
 
