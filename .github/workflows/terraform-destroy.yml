@@ -1,34 +1,84 @@
-name: Destroy Infrastructure
+name: Deploy AWS with Terraform after PR
 
 on:
-  workflow_dispatch:
-    inputs:
-      confirm:
-        description: 'Digite DESTROY para confirmar'
-        required: true
-        type: string
+  pull_request:
+    types: [closed]
+    branches: [develop]
 
 jobs:
-  destroy_terraform:
-    name: Destruir Infraestrutura AWS
-    if: github.event.inputs.confirm == 'DESTROY'
+  deploy_terraform:
+    name: Deploy Terraform to AWS
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
 
+    env:
+      LAMBDA_DIRECTORY: "src/lambdas"
+      TABLE_NAME: "MarketList-dev"  
+
     steps:
-      - name: Baixar o código do repositório
+      - name: Checkout repository code
         uses: actions/checkout@v4
 
-      - name: Configurar Credenciais AWS
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
           aws-region: us-east-1
 
-      - name: Configurar Terraform
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Install Python dependencies
+        run: |
+          pip install black isort
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+
+      # Criação de diretórios com variáveis
+      - name: Create directories for Lambda functions
+        run: |
+          mkdir -p $LAMBDA_DIRECTORY/hello_terraform
+          mkdir -p $LAMBDA_DIRECTORY/add_item
+          mkdir -p $LAMBDA_DIRECTORY/delete_item
+          mkdir -p $LAMBDA_DIRECTORY/update_item
+
+      # Depuração: Listar arquivos em src/lambdas
+      - name: List files in $LAMBDA_DIRECTORY
+        run: ls -R $LAMBDA_DIRECTORY
+
+      # Check Python formatting with Black
+      - name: Check Python formatting with Black
+        run: |
+          if [ -d "$LAMBDA_DIRECTORY" ]; then
+            black --check $LAMBDA_DIRECTORY || echo "⚠️ Python files need formatting"
+          else
+            echo "ℹ️ No Python files found in $LAMBDA_DIRECTORY"
+          fi
+        continue-on-error: true
+
+      # Check import order with isort
+      - name: Check import order with isort
+        run: |
+          if [ -d "$LAMBDA_DIRECTORY" ]; then
+            isort --check-only $LAMBDA_DIRECTORY || echo "⚠️ Imports need sorting"
+          else
+            echo "ℹ️ No Python files found for import checking"
+          fi
+        continue-on-error: true
+
+      # Build Lambda Packages
+      - name: Build Lambda Packages
+        run: |
+          cd scripts
+          python build.py
+
+      - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.5.7
@@ -37,6 +87,14 @@ jobs:
         run: terraform init
         working-directory: ./terraform
 
-      - name: Terraform Destroy
-        run: terraform destroy -auto-approve -input=false
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: ./terraform
+
+      - name: Terraform Plan
+        run: terraform plan -no-color -input=false -var="dynamodb_table_name=${{ env.TABLE_NAME }}"
+        working-directory: ./terraform
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve -input=false -var="dynamodb_table_name=${{ env.TABLE_NAME }}"
         working-directory: ./terraform
