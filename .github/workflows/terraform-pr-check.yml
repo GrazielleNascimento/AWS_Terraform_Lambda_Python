@@ -47,6 +47,7 @@ jobs:
           mkdir -p src/lambdas/add_item
           mkdir -p src/lambdas/delete_item
           mkdir -p src/lambdas/update_item
+          
 
       # 6. Verificar arquivos e diretórios
       - name: List files in src/lambdas
