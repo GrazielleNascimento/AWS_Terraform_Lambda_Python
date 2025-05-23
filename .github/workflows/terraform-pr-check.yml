@@ -25,6 +25,21 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+        working-directory: ${{ github.workspace }}
+        
+      - name: Check Python formatting with Black
+        run: black --check src/ scripts/
+
+      - name: Check import order with isort
+        run: isort --check-only src/ scripts/
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
@@ -44,9 +59,8 @@ jobs:
           python-version: '3.9'
 
       - name: Build Lambda Packages
-        run: |
-          cd ../scripts
-          python build.py
+        working-directory: ${{ github.workspace }}
+        run: python scripts/build.py
 
       - name: Terraform Format Check
         id: fmt
