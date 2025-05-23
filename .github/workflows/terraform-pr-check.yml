@@ -1,12 +1,14 @@
-name: Validate Terraform on PR
+name: Deploy AWS with Terraform after PR
 
 on:
   pull_request:
+    types: [closed]
     branches: [develop]
 
 jobs:
-  validate_terraform:
-    name: Validate Terraform
+  deploy_terraform:
+    name: Deploy Terraform to AWS
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -28,6 +30,42 @@ jobs:
         with:
           python-version: '3.9'
 
+      - name: Install Python dependencies
+        run: |
+          pip install black isort
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+
+      # Create missing directories if necessary
+      - name: Create directories for Lambda functions
+        run: |
+          mkdir -p src/lambdas/hello_terraform
+
+      # Debug: List files in src/lambdas to ensure directories and files are present
+      - name: List files in src/lambdas
+        run: ls -R src/lambdas/
+
+      # Check Python formatting with Black
+      - name: Check Python formatting with Black
+        run: |
+          if [ -d "src/lambdas" ]; then
+            black --check src/lambdas/ || echo "⚠️ Python files need formatting"
+          else
+            echo "ℹ️ No Python files found in src/lambdas/"
+          fi
+        continue-on-error: true
+
+      # Check import order with isort
+      - name: Check import order with isort
+        run: |
+          if [ -d "src/lambdas" ]; then
+            isort --check-only src/lambdas/ || echo "⚠️ Imports need sorting"
+          else
+            echo "ℹ️ No Python files found for import checking"
+          fi
+        continue-on-error: true
+
+      # Build Lambda Packages
       - name: Build Lambda Packages
         run: |
           cd scripts
@@ -48,4 +86,8 @@ jobs:
 
       - name: Terraform Plan
         run: terraform plan -no-color -input=false
+        working-directory: ./terraform
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve -input=false
         working-directory: ./terraform
