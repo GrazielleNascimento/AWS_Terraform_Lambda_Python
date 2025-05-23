@@ -41,9 +41,6 @@ jobs:
       - name: Install black
         run: pip install black
         working-directory: ${{ github.workspace }}
-
-      - name: List files in src directory
-        run: ls -R . 
         
       - name: Check Python formatting with Black
         run: black --check src/**/*.py 
