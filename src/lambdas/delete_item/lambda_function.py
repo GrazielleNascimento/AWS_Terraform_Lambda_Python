@@ -4,6 +4,7 @@ Função Lambda para excluir um item da lista de mercado.
 Esta função permite remover um item existente na lista,
 identificado por sua chave composta no DynamoDB.
 """
+
 import json
 import os
 

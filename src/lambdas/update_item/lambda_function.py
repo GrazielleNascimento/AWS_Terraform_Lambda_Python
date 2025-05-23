@@ -4,6 +4,7 @@ Função Lambda para atualizar um item da lista de mercado.
 Esta função permite alterar o nome e/ou o status (TODO para DONE) de um item
 existente na lista, identificado por sua chave composta no DynamoDB.
 """
+
 import json
 import os
 

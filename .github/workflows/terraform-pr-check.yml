@@ -43,8 +43,9 @@ jobs:
         working-directory: ${{ github.workspace }}
         
       - name: Check Python formatting with Black
-        run: black --check src/lambdas/**/*.py
-
+        run: |
+          files=$(find src/lambdas/ -name "*.py")
+          black --check $files
 
       - name: Check import order with isort
         run: isort --check-only 
