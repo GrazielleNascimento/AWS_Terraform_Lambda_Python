@@ -35,10 +35,10 @@ jobs:
         working-directory: ${{ github.workspace }}
         
       - name: Check Python formatting with Black
-        run: black --check scripts/
+        run: black --check 
 
       - name: Check import order with isort
-        run: isort --check-only src/ scripts/
+        run: isort --check-only 
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
