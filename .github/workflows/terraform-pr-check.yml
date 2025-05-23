@@ -32,10 +32,14 @@ jobs:
 
       - name: Install Python dependencies
         run: pip install -r requirements.txt
+             pip install black
         working-directory: ${{ github.workspace }}
+
+      - name: List files in src directory
+        run: ls -R src/ 
         
       - name: Check Python formatting with Black
-        run: black --check src/lambdas/
+        run: black --check src/**/*.py 
 
       - name: Check import order with isort
         run: isort --check-only 
