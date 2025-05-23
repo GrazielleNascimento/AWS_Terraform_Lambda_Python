@@ -33,7 +33,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           pip install -r requirements.txt
-          pip install black
+          pip install black  # Instala o black explicitamente
         working-directory: ${{ github.workspace }}
 
       - name: List files in src directory
