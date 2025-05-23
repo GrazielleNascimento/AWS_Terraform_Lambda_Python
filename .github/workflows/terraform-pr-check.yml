@@ -35,7 +35,7 @@ jobs:
         working-directory: ${{ github.workspace }}
         
       - name: Check Python formatting with Black
-        run: black --check 
+        run: black --check src/ 
 
       - name: Check import order with isort
         run: isort --check-only 
