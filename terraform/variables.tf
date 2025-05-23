@@ -4,10 +4,12 @@ variable "region" {
   default     = "sa-east-1"
 }
 
-variable "profile" {
-  description = "Perfil AWS CLI"
-  type        = string
-  default     = "default"
+variable "AWS_ACCESS_KEY_ID_DEV" {
+  type = string
+}
+
+variable "AWS_SECRET_ACCESS_KEY_DEV" {
+  type = string
 }
 
 variable "lambda_runtime" {
