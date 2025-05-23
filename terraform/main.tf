@@ -1,3 +1,60 @@
+# Bucket para armazenar o tfstate
+
+terraform {
+  backend "s3" {
+    bucket = "my-terraform-state-bucket-dev-v7"
+    key = "global/s3/terraform.tfstate"
+    region = "sa-east-1"
+    dynamodb_table = "terraform-locks-dev"
+    encrypt = true
+  }
+
+}
+
+resource "aws_s3_bucket" "terraform_state" {
+  bucket = "my-terraform-state-bucket-dev-v7"
+
+  tags = {
+    Name        = "Terraform State Bucket"
+    Environment = "dev"
+  }
+}
+
+resource "aws_s3_bucket_versioning" "terraform_state" {
+  bucket = aws_s3_bucket.terraform_state.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "terraform_state" {
+  bucket = aws_s3_bucket.terraform_state.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+# Tabela DynamoDB para controle de locking
+resource "aws_dynamodb_table" "terraform_locks" {
+  name         = "terraform-locks-dev"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "LockID"
+
+  attribute {
+    name = "LockID"
+    type = "S"
+  }
+
+  tags = {
+    Name        = "Terraform Locks Table"
+    Environment = "dev"
+  }
+}
+
+
 # Lambda Functions
 
 module "hello_terraform" {
@@ -113,3 +170,4 @@ module "api_gateway" {
   lambda_function_name            = module.hello_terraform.function_name
   api_gateway_cloudwatch_role_arn = aws_iam_role.api_gateway_role.arn
 }
+
