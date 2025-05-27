@@ -204,7 +204,7 @@ module "api_gateway_list" {
   environment              = var.environment
   cognito_user_pool_arn    = module.cognito.user_pool_arn
   lambda_invoke_arn_get    = module.get_item.invoke_arn
-  lambda_function_arn      = module.get_item.lambda_function_arn
+  lambda_function_arn      = module.get_item.function_arn
   lambda_function_name_get = module.get_item.function_name
 }
 

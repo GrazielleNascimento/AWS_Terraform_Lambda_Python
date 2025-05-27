@@ -29,6 +29,6 @@ output "api_gateway_endpoint" {
 }
 
 output "get_item_lambda_arn" {
-  description = "ARN da função Lambda Add Item"
-  value       = module.get_item.lambda_function_arn
+  value = module.get_item.function_arn
 }
+
