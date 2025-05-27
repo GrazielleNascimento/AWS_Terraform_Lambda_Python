@@ -10,3 +10,8 @@ output "lambda_invoke_arn" {
 output "lambda_function_arn" {
   value = var.lambda_function_arn
 }
+
+output "function_name" {
+  description = "Nome da função Lambda"
+  value       = var.lambda_function_name_get
+}

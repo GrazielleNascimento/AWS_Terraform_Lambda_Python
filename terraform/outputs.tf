@@ -27,7 +27,8 @@ output "api_gateway_endpoint" {
   description = "Endpoint do API Gateway para /hello"
   value       = module.api_gateway.api_endpoint
 }
+
 output "get_item_lambda_arn" {
   description = "ARN da função Lambda Add Item"
-  value       = module.get_item.function_arn
+  value       = module.get_item.lambda_function_arn
 }
