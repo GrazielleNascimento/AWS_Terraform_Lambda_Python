@@ -16,4 +16,4 @@ pytest==7.4.0
 python-dateutil==2.9.0.post0
 s3transfer==0.13.0
 six==1.17.0
-urllib3>=1.25.4,<1.27
+urllib3==1.26.18
