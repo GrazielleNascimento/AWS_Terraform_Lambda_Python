@@ -7,3 +7,6 @@ output "lambda_invoke_arn" {
   value = var.lambda_invoke_arn_get
 }
 
+output "lambda_function_arn" {
+  value = var.lambda_function_arn
+}
