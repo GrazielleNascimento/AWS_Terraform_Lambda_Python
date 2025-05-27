@@ -1,7 +1,3 @@
-provider "aws" {
-  region = "sa-east-1"
-}
-
 # Bucket para armazenar o tfstate
 
 terraform {
