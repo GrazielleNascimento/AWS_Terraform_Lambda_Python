@@ -22,7 +22,7 @@ def lambda_handler(event, context):
        
         items = response.get("Items", [])
         print(f"📄 Itens encontrados: {json.dumps(items, indent=2)}")
-
+        date_str = date
         items_formatados = [
             {
                 "id": item["SK"].replace("ITEM#", ""),
@@ -31,6 +31,7 @@ def lambda_handler(event, context):
                 "createdAt": item.get("createdAt")
             }
             for item in items
+            if item.get("createdAt", "").startswith(date_str)
         ]
 
         return {
