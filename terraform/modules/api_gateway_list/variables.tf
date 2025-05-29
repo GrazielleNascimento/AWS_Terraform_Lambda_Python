@@ -1,4 +1,6 @@
 variable "api_name" {}
+variable "function_name" {}
+variable "http_method" {}
 variable "region" {}
 variable "environment" {}
 variable "lambda_invoke_arn_get" {}

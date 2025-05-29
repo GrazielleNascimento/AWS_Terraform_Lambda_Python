@@ -1,6 +1,6 @@
 resource "aws_api_gateway_rest_api" "api_gateway_list" {
   name = "${var.api_name}-${var.environment}"
-  
+
   endpoint_configuration {
     types = ["REGIONAL"]
   }
@@ -35,6 +35,14 @@ resource "aws_api_gateway_integration" "get_lista" {
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/${var.lambda_function_arn}/invocations"
+}
+
+resource "aws_lambda_permission" "allow_api_gateway" {
+  statement_id  = "AllowAPIGatewayInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = var.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.api_gateway_list.execution_arn}/*/${var.http_method}${aws_api_gateway_resource.lambdas_resource.path}"
 }
 
 resource "aws_api_gateway_deployment" "deployment" {
