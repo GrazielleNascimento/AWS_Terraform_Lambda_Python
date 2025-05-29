@@ -21,9 +21,12 @@ def lambda_handler(event, context):
         pk = f"LIST#{date.replace('-', '')}"
         print(f"🔍 Buscando itens com PK: {pk}")
 
+
+        print(f"🔍 Consultando DynamoDB com PK: {pk} | SK começa com: ITEM#")
         response = table.query(
-            KeyConditionExpression=Key("PK").eq(pk)
+             KeyConditionExpression=Key("PK").eq(pk)
         )
+        print(f"🔍 Raw DynamoDB response: {response}")
 
         items = response.get("Items", [])
         print(f"📄 Itens encontrados: {json.dumps(items, indent=2)}")
