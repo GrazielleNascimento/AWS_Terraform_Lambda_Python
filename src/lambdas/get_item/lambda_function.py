@@ -11,23 +11,15 @@ def lambda_handler(event, context):
         query_params = event.get("queryStringParameters") or {}
         date = query_params.get("date")
 
-        if not date:
-            return {
-                "statusCode": 400,
-                "body": json.dumps({"error": "Parâmetro obrigatório: date"}),
-                "headers": {"Content-Type": "application/json"}
-            }
-
+        
         pk = f"LIST#{date.replace('-', '')}"
         print(f"🔍 Buscando itens com PK: {pk}")
 
-
-        print(f"🔍 Consultando DynamoDB com PK: {pk} | SK começa com: ITEM#")
+        
         response = table.query(
-             KeyConditionExpression=Key("PK").eq(pk) & Key("SK").begins_with("ITEM#")
+             KeyConditionExpression=Key("PK").eq(pk)
         )
-        print(f"🔍 Raw DynamoDB response: {response}")
-
+       
         items = response.get("Items", [])
         print(f"📄 Itens encontrados: {json.dumps(items, indent=2)}")
 

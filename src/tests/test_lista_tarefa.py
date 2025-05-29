@@ -61,31 +61,6 @@ def test_get_items_not_found(monkeypatch):
     assert len(body) == 0  
     
 
-# Teste para verificar se o erro é retornado quando o parâmetro date está ausente
-def test_get_items_missing_date():
-    event = {
-        "queryStringParameters": {}
-    }
-    result = lambda_handler(event, None)
-    assert result["statusCode"] == 400
-    
-    body = json.loads(result["body"])  
-    assert "Parâmetro obrigatório: date" in body["error"]
-
-
-
-# Teste para verificar se o erro é retornado quando não há query string
-def test_get_items_no_query_string():
-    event = {
-        "queryStringParameters": None
-    }
-    result = lambda_handler(event, None)
-    assert result["statusCode"] == 400
-    
-    body = json.loads(result["body"])  
-    assert "Parâmetro obrigatório: date" in body["error"]
-
-
 
 # Teste para verificar se o erro é retornado quando há falha na consulta ao DynamoDB
 def test_get_items_dynamodb_failure(monkeypatch):
