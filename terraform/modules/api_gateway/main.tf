@@ -9,11 +9,26 @@ resource "aws_api_gateway_resource" "hello" {
   path_part   = "hello"
 }
 
+resource "aws_api_gateway_resource" "add_item" {
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  parent_id   = aws_api_gateway_rest_api.this.root_resource_id
+  path_part   = "lista-tarefa"
+}
+
+
 # Método GET para /hello
 resource "aws_api_gateway_method" "get_hello" {
   rest_api_id   = aws_api_gateway_rest_api.this.id
   resource_id   = aws_api_gateway_resource.hello.id
   http_method   = "GET"
+  authorization = "COGNITO_USER_POOLS"
+  authorizer_id = aws_api_gateway_authorizer.cognito.id
+}
+
+resource "aws_api_gateway_method" "add_item_post" {
+  rest_api_id   = aws_api_gateway_rest_api.this.id
+  resource_id   = aws_api_gateway_resource.add_item.id
+  http_method   = "POST"
   authorization = "COGNITO_USER_POOLS"
   authorizer_id = aws_api_gateway_authorizer.cognito.id
 }
@@ -29,11 +44,37 @@ resource "aws_api_gateway_integration" "get_hello_integration" {
   uri                     = var.lambda_invoke_arn
 }
 
+resource "aws_api_gateway_integration" "add_item_integration" {
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_resource.add_item.id
+  http_method = aws_api_gateway_method.add_item_post.http_method
+  
+  integration_http_method = "POST"  
+  type                    = "AWS_PROXY"
+  uri                     = var.lambda_add_item_arn
+}
+
+
 # Adiciona método response
 resource "aws_api_gateway_method_response" "get_hello_response_200" {
   rest_api_id = aws_api_gateway_rest_api.this.id
   resource_id = aws_api_gateway_resource.hello.id
   http_method = aws_api_gateway_method.get_hello.http_method
+  status_code = "200"
+
+  response_models = {
+    "application/json" = "Empty"
+  }
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin" = false
+  }
+}
+
+resource "aws_api_gateway_method_response" "add_item_response_200" {
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_resource.add_item.id
+  http_method = aws_api_gateway_method.add_item_post.http_method
   status_code = "200"
 
   response_models = {
@@ -59,6 +100,19 @@ resource "aws_api_gateway_integration_response" "get_hello_integration_response"
   depends_on = [aws_api_gateway_integration.get_hello_integration]
 }
 
+resource "aws_api_gateway_integration_response" "add_item_integration_response" {
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_resource.add_item.id
+  http_method = aws_api_gateway_method.add_item_post.http_method
+  status_code = aws_api_gateway_method_response.add_item_response_200.status_code
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin" = "'*'"
+  }
+
+  depends_on = [aws_api_gateway_integration.add_item_integration]
+}
+
 # Permissão Lambda específica
 resource "aws_lambda_permission" "api_gateway_lambda" {
   statement_id  = "AllowAPIGatewayInvoke"
@@ -69,6 +123,16 @@ resource "aws_lambda_permission" "api_gateway_lambda" {
   # Mais específico para o método GET em /hello
   source_arn = "${aws_api_gateway_rest_api.this.execution_arn}/*/GET/hello"
 }
+
+resource "aws_lambda_permission" "add_item_lambda" {
+  statement_id  = "AllowAPIGatewayInvokeAddItem"
+  action        = "lambda:InvokeFunction"
+  function_name = var.lambda_add_item_function_name
+  principal     = "apigateway.amazonaws.com"
+  
+  source_arn = "${aws_api_gateway_rest_api.this.execution_arn}/*/POST/lista-tarefa"
+}
+
 
 # Authorizer Cognito
 resource "aws_api_gateway_authorizer" "cognito" {
@@ -84,11 +148,15 @@ resource "aws_api_gateway_deployment" "this" {
   rest_api_id = aws_api_gateway_rest_api.this.id
 
   depends_on = [
-    aws_api_gateway_method.get_hello,
-    aws_api_gateway_integration.get_hello_integration,
-    aws_api_gateway_method_response.get_hello_response_200,
-    aws_api_gateway_integration_response.get_hello_integration_response
-  ]
+  aws_api_gateway_method.get_hello,
+  aws_api_gateway_integration.get_hello_integration,
+  aws_api_gateway_method_response.get_hello_response_200,
+  aws_api_gateway_integration_response.get_hello_integration_response,
+  aws_api_gateway_method.add_item_post,
+  aws_api_gateway_integration.add_item_integration,
+  aws_api_gateway_method_response.add_item_response_200,
+  aws_api_gateway_integration_response.add_item_integration_response,
+]
 
   lifecycle {
     create_before_destroy = true
@@ -97,9 +165,12 @@ resource "aws_api_gateway_deployment" "this" {
   
   triggers = {
     redeployment = sha1(jsonencode([
-      aws_api_gateway_resource.hello.id,
-      aws_api_gateway_method.get_hello.id,
-      aws_api_gateway_integration.get_hello_integration.id,
+          aws_api_gateway_resource.hello.id,
+          aws_api_gateway_method.get_hello.id,
+          aws_api_gateway_integration.get_hello_integration.id,
+          aws_api_gateway_resource.add_item.id,
+          aws_api_gateway_method.add_item_post.id,
+          aws_api_gateway_integration.add_item_integration.id
     ]))
   }
 }
