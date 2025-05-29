@@ -1,10 +1,3 @@
-"""
-Função Lambda para adicionar um item à lista de mercado.
-
-Esta função recebe um nome e uma data, cria um novo item
-e o salva no DynamoDB usando o padrão Single Table Design.
-"""
-
 import json
 import os
 import uuid
@@ -16,29 +9,32 @@ import boto3
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ.get("DYNAMODB_TABLE_NAME", "MarketList"))
 
-
 def lambda_handler(event, context):
     """
     Manipulador da função Lambda para adicionar item.
 
-    :param event: Evento contendo name e date
-    :param context: Contexto de execução da Lambda
-    :return: Resposta com status 201 e o item criado
+    Compatível com chamadas diretas e via API Gateway HTTP/REST.
+
+    :param event: Evento contendo os campos 'name' e 'date'
+    :param context: Contexto de execução Lambda
+    :return: Resposta HTTP com status e dados
     """
     try:
-        # Extrair valores do evento
-        body = event
-
-        if not isinstance(body, dict):
-            body = (
-                json.loads(event.get("body", "{}")) if isinstance(event, dict) else {}
-            )
-
+         # Suporte para chamadas via API Gateway
+        if isinstance(event, dict) and "body" in event:
+            body_raw = event.get("body", "{}")
+            body = json.loads(body_raw) if isinstance(body_raw, str) else body_raw
+        else:
+            body = event 
+        # Extrair parâmetros obrigatórios
         name = body.get("name")
         date = body.get("date")
 
         if not name or not date:
-            return {"statusCode": 400, "body": "Parâmetros obrigatórios: name e date"}
+            return {
+                "statusCode": 400,
+                "body": json.dumps({"message": "Parâmetros obrigatórios: name e date"})
+            }
 
         # Gerar chaves
         pk = f"LIST#{date.replace('-', '')}"
@@ -58,10 +54,18 @@ def lambda_handler(event, context):
         # Salvar no DynamoDB
         table.put_item(Item=item)
 
-        # Preparar resposta
-        return {"statusCode": 201, "body": item}
+        # Retornar item criado
+        return {
+            "statusCode": 201,
+            "body": json.dumps(item),
+            "headers": {
+                "Content-Type": "application/json"
+            }
+        }
 
     except Exception as e:
-        if context:
-            context.log(f"Error: {str(e)}")
-        return {"statusCode": 500, "body": f"Error creating item: {str(e)}"}
+        print(f"Erro ao processar requisição: {str(e)}")
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"message": f"Erro interno: {str(e)}"})
+        }
