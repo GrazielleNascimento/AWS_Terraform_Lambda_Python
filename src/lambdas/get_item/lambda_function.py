@@ -2,6 +2,7 @@ import json
 import os
 import boto3
 from boto3.dynamodb.conditions import Key
+from datetime import datetime
 
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ.get("DYNAMODB_TABLE_NAME", "MarketList"))
@@ -23,6 +24,13 @@ def lambda_handler(event, context):
         items = response.get("Items", [])
         print(f"📄 Itens encontrados: {json.dumps(items, indent=2)}")
 
+        date_str = date  # ex: '2025-05-20'
+
+        items_filtrados = [
+            item for item in items
+            if item.get("createdAt", "").startswith(date_str)
+        ]
+
         items_formatados = [
             {
                 "id": item["SK"].replace("ITEM#", ""),
@@ -30,7 +38,7 @@ def lambda_handler(event, context):
                 "status": item.get("status"),
                 "createdAt": item.get("createdAt")
             }
-            for item in items
+            for item in items_filtrados
         ]
 
         return {
