@@ -11,15 +11,13 @@ def lambda_handler(event, context):
         query_params = event.get("queryStringParameters") or {}
         date = query_params.get("date")
 
-        
         pk = f"LIST#{date.replace('-', '')}"
         print(f"🔍 Buscando itens com PK: {pk}")
 
-        
         response = table.query(
              KeyConditionExpression=Key("PK").eq(pk)
         )
-       
+
         items = response.get("Items", [])
         print(f"📄 Itens encontrados: {json.dumps(items, indent=2)}")
 
