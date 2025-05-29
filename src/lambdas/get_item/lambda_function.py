@@ -4,7 +4,9 @@ import boto3
 from boto3.dynamodb.conditions import Key
 
 dynamodb = boto3.resource("dynamodb")
-table = dynamodb.Table(os.environ.get("DYNAMODB_TABLE_NAME", "MarketList"))
+TABLE_NAME = os.environ.get("DYNAMODB_TABLE_NAME", "MarketList")
+TABLE = dynamodb.Table(TABLE_NAME)
+
 
 def lambda_handler(event, context):
     try:
@@ -13,16 +15,12 @@ def lambda_handler(event, context):
 
         
         pk = f"LIST#{date}"
-        print(f"🔍 Buscando itens com PK: {pk}")
-
         
-        response = table.query(
+        response = TABLE.query(
              KeyConditionExpression=Key("PK").eq(pk)
         )
        
         items = response.get("Items", [])
-        print(f"📄 Itens encontrados: {json.dumps(items, indent=2)}")
-        
 
         items_formatados = [
             {
@@ -41,8 +39,6 @@ def lambda_handler(event, context):
         }
 
     except Exception as e:
-        if context:
-            context.log(f"Erro ao buscar itens: {str(e)}")
         return {
             "statusCode": 500,
             "body": json.dumps({"error": f"Erro ao buscar itens: {str(e)}"}),

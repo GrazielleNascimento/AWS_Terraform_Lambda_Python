@@ -17,7 +17,7 @@ def test_get_items_success(monkeypatch):
             }
 
     # Substituir a tabela real pela tabela simulada
-    monkeypatch.setattr("lambdas.get_item.lambda_function.table", FakeTable())
+    monkeypatch.setattr("lambdas.get_item.lambda_function.TABLE", FakeTable())
 
     # Simular o evento de entrada
     event = {
@@ -45,7 +45,7 @@ def test_get_items_not_found(monkeypatch):
         def query(self, KeyConditionExpression):
             return {"Items": []}
 
-    monkeypatch.setattr("lambdas.get_item.lambda_function.table", FakeTable())
+    monkeypatch.setattr("lambdas.get_item.lambda_function.TABLE", FakeTable())
 
     event = {
         "queryStringParameters": {
@@ -68,7 +68,7 @@ def test_get_items_dynamodb_failure(monkeypatch):
         def query(self, KeyConditionExpression):
             raise Exception("Erro no banco")
 
-    monkeypatch.setattr("lambdas.get_item.lambda_function.table", FakeTable())
+    monkeypatch.setattr("lambdas.get_item.lambda_function.TABLE", FakeTable())
 
     event = {
         "queryStringParameters": {
