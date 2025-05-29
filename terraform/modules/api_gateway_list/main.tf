@@ -42,7 +42,7 @@ resource "aws_lambda_permission" "allow_api_gateway" {
   action        = "lambda:InvokeFunction"
   function_name = var.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.api_gateway_list.execution_arn}/*/${var.http_method}${aws_api_gateway_resource.lambdas_resource.path}"
+  source_arn    = "${aws_api_gateway_rest_api.api_gateway_list.execution_arn}/*/${var.http_method}${aws_api_gateway_resource.lista-tarefa.path}"
 }
 
 resource "aws_api_gateway_deployment" "deployment" {
