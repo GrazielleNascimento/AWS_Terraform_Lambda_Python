@@ -21,3 +21,14 @@ variable "environment" {
   type        = string
   default     = "dev"
 }
+
+variable "http_method" {
+  description = "Método HTTP"
+  type        = string
+  default     = "GET"
+}
+
+variable "function_name" {
+  type        = string
+  description = "Funcao lambda"
+}

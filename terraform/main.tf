@@ -201,6 +201,8 @@ module "api_gateway_list" {
 
   api_name                 = "market-list-api"
   region                   = var.region
+  function_name            = var.function_name
+  http_method              = var.http_method
   environment              = var.environment
   cognito_user_pool_arn    = module.cognito.user_pool_arn
   lambda_invoke_arn_get    = module.get_item.invoke_arn
