@@ -24,7 +24,7 @@ def lambda_handler(event, context):
 
         print(f"🔍 Consultando DynamoDB com PK: {pk} | SK começa com: ITEM#")
         response = table.query(
-             KeyConditionExpression=Key("PK").eq(pk)
+             KeyConditionExpression=Key("PK").eq(pk) & Key("SK").begins_with("ITEM#")
         )
         print(f"🔍 Raw DynamoDB response: {response}")
 
