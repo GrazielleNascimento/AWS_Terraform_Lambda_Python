@@ -31,4 +31,5 @@ variable "http_method" {
 variable "function_name" {
   type        = string
   description = "Funcao lambda"
+  default     = "get_item"
 }
