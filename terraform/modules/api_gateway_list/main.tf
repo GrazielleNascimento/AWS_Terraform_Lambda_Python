@@ -1,5 +1,9 @@
 resource "aws_api_gateway_rest_api" "api_gateway_list" {
   name = "${var.api_name}-${var.environment}"
+  
+  endpoint_configuration {
+    types = ["REGIONAL"]
+  }
 }
 
 resource "aws_api_gateway_authorizer" "cognito" {
