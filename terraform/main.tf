@@ -153,6 +153,31 @@ module "delete_item" {
   }
 }
 
+module "get_item" {
+  source = "./modules/lambda"
+
+  function_name = "get_item"
+  role_arn      = aws_iam_role.lambda_role.arn
+  handler       = "lambda_function.lambda_handler"
+  runtime       = var.lambda_runtime
+
+  filename         = "../dist/get_item_lambda.zip"
+  source_code_hash = filebase64sha256("../dist/get_item_lambda.zip")
+
+  memory_size = 256
+  timeout     = 15
+
+  environment_variables = {
+    DYNAMODB_TABLE_NAME = aws_dynamodb_table.market_list_table.name
+  }
+
+  tags = {
+    Environment = var.environment
+    Function    = "get_item"
+  }
+}
+
+
 module "cognito" {
   source         = "./modules/cognito"
   user_pool_name = "user-pool-hello-api-prod"
@@ -169,5 +194,19 @@ module "api_gateway" {
   lambda_invoke_arn               = module.hello_terraform.invoke_arn
   lambda_function_name            = module.hello_terraform.function_name
   api_gateway_cloudwatch_role_arn = aws_iam_role.api_gateway_role.arn
+}
+
+module "api_gateway_list" {
+  source = "./modules/api_gateway_list"
+
+  api_name                 = "market-list-api"
+  region                   = var.region
+  function_name            = var.function_name
+  http_method              = var.http_method
+  environment              = var.environment
+  cognito_user_pool_arn    = module.cognito.user_pool_arn
+  lambda_invoke_arn_get    = module.get_item.invoke_arn
+  lambda_function_arn      = module.get_item.function_arn
+  lambda_function_name_get = module.get_item.function_name
 }
 
