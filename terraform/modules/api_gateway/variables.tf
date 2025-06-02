@@ -23,6 +23,13 @@ variable "lambda_function_name" {
   type        = string
 }
 
+variable "lambda_add_item_arn" {
+  type = string
+}
+
+variable "lambda_add_item_function_name" {
+  type = string
+}
 
 variable "api_gateway_cloudwatch_role_arn" {
   description = "ARN do IAM Role para CloudWatch logs do API Gateway"

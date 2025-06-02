@@ -1,5 +1,4 @@
 # Bucket para armazenar o tfstate
-
 terraform {
   backend "s3" {
     bucket         = "my-terraform-state-bucket-dev-v7"
@@ -54,9 +53,7 @@ resource "aws_dynamodb_table" "terraform_locks" {
   }
 }
 
-
 # Lambda Functions
-
 module "hello_terraform" {
   source = "./modules/lambda"
 
@@ -193,6 +190,8 @@ module "api_gateway" {
   cognito_user_pool_arn           = module.cognito.user_pool_arn
   lambda_invoke_arn               = module.hello_terraform.invoke_arn
   lambda_function_name            = module.hello_terraform.function_name
+  lambda_add_item_arn             = module.add_item.invoke_arn
+  lambda_add_item_function_name   = module.add_item.function_name
   api_gateway_cloudwatch_role_arn = aws_iam_role.api_gateway_role.arn
 }
 

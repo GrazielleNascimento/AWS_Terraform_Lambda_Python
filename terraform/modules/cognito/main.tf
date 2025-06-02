@@ -14,7 +14,7 @@ resource "aws_cognito_user_pool_client" "this" {
   ]
 }
 
-resource "aws_cognito_user_pool_domain" "this" {
-  domain       = var.domain_prefix
+resource "aws_cognito_user_pool_domain" "this"{
+  domain       = "hello-terraform-api-auth-v2-004"
   user_pool_id = aws_cognito_user_pool.this.id
 }
