@@ -23,6 +23,11 @@ LAMBDA_FUNCTIONS = {
         "src_dir": "src/lambdas/delete_item",
         "dist_file": "delete_item_lambda.zip",
     },
+    "get_item": {
+        "src_dir": "src/lambdas/get_item",
+        "dist_file": "get_item_lambda.zip",
+    },
+
 }
 
 DIST_DIR = "dist"
